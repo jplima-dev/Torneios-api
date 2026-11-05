@@ -1,0 +1,7 @@
+// ambiente
+
+.venv/
+venv/
+env/
+.env/
+
