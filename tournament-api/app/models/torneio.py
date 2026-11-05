@@ -1,0 +1,12 @@
+from sqlalchemy import String, Integer, Date, Numeric
+from sqlalchemy.orm import Mapped, mapped_column
+from app.database.database import Base
+
+class torneio(Base):
+    __tablename__ = "torneio"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, nullable=False)
+    nome: Mapped[str] = mapped_column(String(50), nullable=False)
+    modalidade: Mapped[str] = mapped_collumn(String(30), nullable=False)
+    descricao: Mapped[str] = 
+    status:
