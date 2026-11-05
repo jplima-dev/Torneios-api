@@ -4,7 +4,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.database.database import Base
 
 
-class torneio(Base):
+class Torneio(Base):
     __tablename__ = "torneio"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, nullable=False)
