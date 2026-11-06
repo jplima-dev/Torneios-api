@@ -19,7 +19,7 @@ class AtualizarTorneio(TorneioBase):
     status: str | None = None
 
 
-class RespostTorneio(TorneioBase):
+class RespostaTorneio(TorneioBase):
     id: int
 
     model_config = ConfigDit(from_attributes=True)
