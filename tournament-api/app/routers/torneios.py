@@ -5,15 +5,15 @@ from sqlalchemy.orm import Session
 
 from app.database.database import get_db
 from app.models.torneio import Torneio
-from app.schemas.torneio import (
-    CriarTorneio,
+from app.shemas.torneio import (
     AtualizarTorneio,
+    CriarTorneio,
     RespostaTorneio,
 )
 
 router = APIRouter(prefix="/torneios", tags=["Torneios"])
 
-@router.post("/", response_model=RespostaTorneio, status_code=status.HTTP_201_REATED)
+@router.post("/", response_model=RespostaTorneio, status_code=status.HTTP_201_CREATED)
 def criartorneio(dados: CriarTorneio, db: Session = Depends(get_db)):
     novo_torneio = Torneio(**dados.model_dump())
 
@@ -46,10 +46,10 @@ def listar_torneios(db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Erro no banco de dados") from erro
 
 @router.get("/{torneio.id}", resposnse_model=RespostaTorneio)
-def buscar_torneio_id(db: Session = Depends(get_db)):
+def buscar_torneio_id(torneio_id: int, db: Session = Depends(get_db)):
     try:
 
-        consulta = db.get(Torneio, torneio.id)
+        consulta = db.get(Torneio, torneio_id)
 
     except SQLAlchemyError as erro:
         db.rollback()
@@ -61,12 +61,48 @@ def buscar_torneio_id(db: Session = Depends(get_db)):
     return Torneio
 
 @router.put("/{torneio.id}", response_model=RespostaTorneio)
-def atualizar_torneio(db: Session = Depends(get_db)):
-    pass
+def atualizar_torneio(dados: AtualizarTorneio, torneio_id: int ,db: Session = Depends(get_db)):
+    torneio = db.get(Torneio, torneio_id)
+
+    if torneio is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Torneio não encontrado")
+
+    dados_atualizados = dados.model_dump()
+
+    for campo, valor in dados_atualizados.items():
+        setattr(torneio, campo, valor)
+
+    try:
+        db.commit()
+        db.refresh(torneio)
+
+    except SQLAlchemyError as erro:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Erro no banco de dados") from erro
+
+    except IntegrityError as erro:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, datail="Não foi possivel atualizar o torneio") from erro
+
+    return torneio
 
 
 @router.delete("/{torneio.id}", response_model=RespostaTorneio)
-def deletar_torneio(db: Session = Depends(get_db)):
-    pass
+def deletar_torneio(torneio_id: int, db: Session = Depends(get_db)) -> None:
+
+    torneio = db.get(Torneio, torneio_id)
+
+    if torneio is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detai="Não foi possivel achar o torneio")
+
+    try:
+        db.delete(torneio)
+        db.commit()
+
+    except SQLAlchemyError as erro:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Erro no banco de dados") from erro
+    
+    
 
     

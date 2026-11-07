@@ -13,8 +13,6 @@ class Partida(Base):
     time1_id: Mapped[int] = mapped_column(ForeignKey("times.id"), nullable=False)
     time2_id: Mapped[int] = mapped_column(ForeignKey("times.id"), nullable=False)
 
-    fase: Mapped[str] = mapped_column(String(20), nullable=False)
-
     pontos1: Mapped[int] = mapped_column(Integer, default=0)
     pontos2: Mapped[int] = mapped_column(Integer, default=0)
 

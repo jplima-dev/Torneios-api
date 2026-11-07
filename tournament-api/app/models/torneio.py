@@ -12,3 +12,4 @@ class Torneio(Base):
     modalidade: Mapped[str] = mapped_column(String(30), nullable=False)
     descricao: Mapped[str] = mapped_column(String(100), nullable=True)
     status: Mapped[str] = mapped_column(String(20), nullable=False)
+    
