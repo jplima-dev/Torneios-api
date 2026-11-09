@@ -1,24 +1,12 @@
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class FaseBase(BaseModel):
-    torneio_id: int = Field(gt=0)
+class CriarFase(BaseModel):
     nome: str = Field(min_length=1, max_length=50)
-    ordem: int = Field(gt=0)
+    ordem: int = Field(default=1, gt=0)
 
-class CriarFase(FaseBase):
-    pass
 
-class AtualizarFase(BaseModel):
-    nome: str = Field(min_length=1, max_length=50)
-    ordem: int = Field(gt=0)
-    
-
-class RespostaFase(FaseBase):
+class RespostaFase(CriarFase):
     id: int
     torneio_id: int
-    nome: str
-    ordem: int
-
-
     model_config = ConfigDict(from_attributes=True)

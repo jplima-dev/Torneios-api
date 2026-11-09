@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDit, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class TorneioBase(BaseModel):
@@ -12,14 +12,13 @@ class CriarTorneio(TorneioBase):
     pass
 
 
-class AtualizarTorneio(TorneioBase):
-    nome: str = Field(default=None, min_length=3, max_length=50)
-    modalidade: str = Field(default=None, min_length=3, max_length=30)
+class AtualizarTorneio(BaseModel):
+    nome: str | None = Field(default=None, min_length=3, max_length=50)
+    modalidade: str | None = Field(default=None, min_length=3, max_length=30)
     descricao: str | None = Field(default=None, max_length=100)
     status: str | None = None
 
 
 class RespostaTorneio(TorneioBase):
     id: int
-
-    model_config = ConfigDit(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True)

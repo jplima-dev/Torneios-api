@@ -5,7 +5,7 @@ from app.database.database import Base
 
 
 class Fase(Base):
-    __tabelname__ = "Fase"
+    __tablename__ = "fases"
 
     id: Mapped[int] = mapped_column(primary_key=True, nullable=False)
     torneio_id: Mapped[int] = mapped_column(ForeignKey("torneio.id"))

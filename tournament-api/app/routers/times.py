@@ -1,113 +1,56 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.database.database import get_db
-from app.models.times import Time
+from app.models.times import Times
 from app.models.torneio import Torneio
-from app.shemas.times import (
-    AtualizarTimes,
-    CriarTimes,
-    RespostaTimes,
-)
+from app.shemas.times import AtualizarTimes, CriarTimes, RespostaTimes
 
-# from app.shemas.fase import
+router = APIRouter(prefix="/torneios/{torneio_id}/times", tags=["Times"])
 
-router = APIRouter(prefix="/torneios/{torneios.id}/partidas", tags=["Times"])
 
-@router.post("/", reponse_model=RespostaTimes, status_code=status.HTTP_201_CREATED)
-def criar_times(dados: CriarTimes, db: Session = Depends(get_db)):
-    novo_time = Time(**db.model_dump())
-
-    try:
-        db.add(novo_time)
-        db.commit()
-        db.refresh(novo_time)
-
-    except SQLAlchemyError as erro:
-        db.rollback()
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Erro no banco de dados") from erro
-
-    except IntegrityError as erro:
-        db.rollback()
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Não foi possivel criar o time") from erro
-
-    return novo_time
+def obter_time(torneio_id: int, time_id: int, db: Session) -> Times:
+    time = db.get(Times, time_id)
+    if time is None or time.torneio_id != torneio_id:
+        raise HTTPException(404, "Time não encontrado")
+    return time
 
 
 @router.get("/", response_model=list[RespostaTimes])
 def listar_times(torneio_id: int, db: Session = Depends(get_db)):
-    try:
-        torneio = db.get(Torneio, torneio_id)
-
-        if torneio is None:
-            pass
-
-        consulta = select(Time).where(Time.torneio_id == torneio_id)
-
-        times = db.scalars(consulta).all()
-
-        return times
-
-    except SQLAlchemyError as erro:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Erro no banco de dados") from erro
+    if db.get(Torneio, torneio_id) is None:
+        raise HTTPException(404, "Torneio não encontrado")
+    return db.scalars(select(Times).where(Times.torneio_id == torneio_id).order_by(Times.id)).all()
 
 
-@router.get("/{time_id}", response_model=list[RespostaTimes])
-def listar_times_id(torneio_id: int, time_id: int,db: Session = Depends(get_db)):
+@router.post("/", response_model=RespostaTimes, status_code=status.HTTP_201_CREATED)
+def criar_time(torneio_id: int, dados: CriarTimes, db: Session = Depends(get_db)):
+    if db.get(Torneio, torneio_id) is None:
+        raise HTTPException(404, "Torneio não encontrado")
+    time = Times(torneio_id=torneio_id, **dados.model_dump())
+    db.add(time)
+    db.commit()
+    db.refresh(time)
+    return time
 
-    try:
-        torneio = db.get(Torneio, torneio_id)
 
-        if torneio is None:
-            pass
-
-        consulta = select(Time).where(Time.torneio_id == torneio_id)
-
-        time = db.scalar(consulta).all()
-
-        return time
-
-    except SQLAlchemyError as erro:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Erro no banco de dados") from erro
-
+@router.get("/{time_id}", response_model=RespostaTimes)
+def buscar_time(torneio_id: int, time_id: int, db: Session = Depends(get_db)):
+    return obter_time(torneio_id, time_id, db)
 
 
 @router.put("/{time_id}", response_model=RespostaTimes)
-def atualizar_times(dados: AtualizarTimes, time_id: int,db: Session = Depends(get_db)):
-    time = db.get(Time, time_id)
-
-    if time is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Não foi possivel localizar o time")
-
-    dados_atualizados = dados.model_dump()
-
-    for campo, valor in dados_atualizados.itens():
+def atualizar_time(torneio_id: int, time_id: int, dados: AtualizarTimes, db: Session = Depends(get_db)):
+    time = obter_time(torneio_id, time_id, db)
+    for campo, valor in dados.model_dump(exclude_unset=True).items():
         setattr(time, campo, valor)
-
-    try:
-        db.commit()
-        db.refresh(time)
-
-    except SQLAlchemyError as erro:
-        db.rollback()
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Erro no bando de dados") from erro
-
-    except IntegrityError as erro:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Verifique as informação enviadas") from erro
+    db.commit()
+    db.refresh(time)
+    return time
 
 
-@router.delete("/{time_id}", response_model=RespostaTimes)
-def deletar_times(time_id: int, db: Session = Depends(get_db)) -> None:
-    time = db.get(Time, time_id)
-
-    if time is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Não foi possivel localizar o time")
-
-    try:
-        db.delete(time)
-        db.commit()
-
-    except SQLAlchemyError as erro:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Erro no banco de dados") from erro
+@router.delete("/{time_id}", status_code=status.HTTP_204_NO_CONTENT)
+def deletar_time(torneio_id: int, time_id: int, db: Session = Depends(get_db)):
+    db.delete(obter_time(torneio_id, time_id, db))
+    db.commit()

@@ -1,4 +1,6 @@
-from pydantic_settings import BaseSettings
+from pathlib import Path
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
@@ -6,15 +8,21 @@ from sqlalchemy.orm import DeclarativeBase, sessionmaker
 class Settings(BaseSettings):
     DATABASE_URL: str
 
-    class config:
-        env_file = ".env"
+    model_config = SettingsConfigDict(
+        env_file=Path(__file__).resolve().parents[2] / ".env",
+        env_file_encoding="utf-8"
+    )
 
 
 settings = Settings()
 
-engine = create_engine(settings.DATABASE_URL, echo=True)
+engine = create_engine(settings.DATABASE_URL, echo=False)
 
-SessionLocal = sessionmaker(autocommit=False, autoFlush=False, bind=engine)
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine
+)
 
 
 class Base(DeclarativeBase):
@@ -22,8 +30,7 @@ class Base(DeclarativeBase):
 
 
 def get_db():
-
-    db = SessionLocal
+    db = SessionLocal()
 
     try:
         yield db
