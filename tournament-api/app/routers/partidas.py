@@ -57,8 +57,8 @@ def criarpartida(torneio_id: int, dados: CriarPartidas, db: Session = Depends(ge
 
 @router.post("/{partida_id}/ponto", response_model=RespostaPartidas)
 def alterar_ponto(torneio_id: int, partida_id: int, lado: int, delta: int = 1, db: Session = Depends(get_db)):
-    if lado not in (1, 2) or delta not in (-1, 1):
-        raise HTTPException(400, "Informe lado 1 ou 2 e delta -1 ou 1")
+    if lado not in (1, 2) or delta not in (-3, -2, -1, 1, 2, 3):
+        raise HTTPException(400, "Informe lado 1 ou 2 e delta entre -3 e 3, exceto zero")
     coluna = Partida.pontos1 if lado == 1 else Partida.pontos2
     resultado = db.execute(
         update(Partida)

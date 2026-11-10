@@ -200,6 +200,7 @@ async function submitForm(event) {
 function showScore(match) {
   state.activeMatch = match;
   $('#score-tournament').textContent = currentTournament()?.nome || 'TORNEIO';
+  $('#score-screen').classList.toggle('basketball-mode', (currentTournament()?.modalidade || '').trim().toLowerCase() === 'basquete');
   $('#score-round').textContent = phaseName(match.fase_id);
   $('#score-name1').textContent = teamName(match.time1_id);
   $('#score-name2').textContent = teamName(match.time2_id);
@@ -209,6 +210,42 @@ function showScore(match) {
   $('#score-value2').textContent = match.pontos2;
   $('#undo-left').disabled = match.pontos1 === 0;
   $('#undo-right').disabled = match.pontos2 === 0;
+}
+
+let wheelSide = null;
+let wheelNegative = false;
+
+function openPointWheel(lado, event) {
+  wheelSide = lado;
+  wheelNegative = false;
+  const panel = $('#point-wheel-panel');
+  const x = event?.clientX ?? window.innerWidth / 2;
+  const y = event?.clientY ?? window.innerHeight / 2;
+  panel.style.left = `${x}px`;
+  panel.style.top = `${y}px`;
+  panel.classList.toggle('team-orange', lado === 1);
+  panel.classList.toggle('team-purple', lado === 2);
+  $('#point-wheel').classList.add('open');
+  $('#point-wheel').setAttribute('aria-hidden', 'false');
+  $('#point-wheel-title').textContent = lado === 1 ? teamName(state.activeMatch.time1_id) : teamName(state.activeMatch.time2_id);
+  updatePointWheel();
+}
+
+function updatePointWheel() {
+  const sign = wheelNegative ? -1 : 1;
+  document.querySelectorAll('[data-wheel-value]').forEach(button => {
+    const value = Number(button.dataset.wheelValue);
+    button.textContent = `${wheelNegative ? '-' : ''}${value}`;
+    button.dataset.delta = String(value * sign);
+  });
+  $('#wheel-toggle-negative').classList.toggle('negative', wheelNegative);
+  $('#wheel-toggle-negative').setAttribute('aria-label', wheelNegative ? 'Mostrar pontos positivos' : 'Mostrar pontos negativos');
+}
+
+function closePointWheel() {
+  $('#point-wheel').classList.remove('open');
+  $('#point-wheel').setAttribute('aria-hidden', 'true');
+  wheelSide = null;
 }
 
 function openScore(id) {
@@ -270,8 +307,26 @@ window.addEventListener('popstate', () => {
   if (id && state.tournaments.some(item => item.id === id)) enterTournament(id, false);
   else showHome(false);
 });
-$('#score-orange').addEventListener('click', () => score(1, 1));
-$('#score-purple').addEventListener('click', () => score(2, 1));
+$('#score-orange').addEventListener('click', event => {
+  if ((currentTournament()?.modalidade || '').trim().toLowerCase() === 'basquete') openPointWheel(1, event);
+  else score(1, 1);
+});
+$('#score-purple').addEventListener('click', event => {
+  if ((currentTournament()?.modalidade || '').trim().toLowerCase() === 'basquete') openPointWheel(2, event);
+  else score(2, 1);
+});
+$('#wheel-toggle-negative').addEventListener('click', () => { wheelNegative = !wheelNegative; updatePointWheel(); });
+$('#wheel-close').addEventListener('click', closePointWheel);
+document.querySelectorAll('[data-wheel-value]').forEach(button => {
+  button.addEventListener('click', () => {
+    if (wheelSide === null) return;
+    const lado = wheelSide;
+    const delta = Number(button.dataset.delta);
+    closePointWheel();
+    score(lado, delta);
+  });
+});
+$('#point-wheel').addEventListener('click', event => { if (event.target === $('#point-wheel')) closePointWheel(); });
 $('#undo-left').addEventListener('click', () => score(1, -1));
 $('#undo-right').addEventListener('click', () => score(2, -1));
 $('#close-score').addEventListener('click', closeScore);
@@ -280,7 +335,8 @@ $('#fullscreen-score').addEventListener('click', () => {
   else $('#score-screen').requestFullscreen?.().catch(() => toast('Tela cheia indisponível neste navegador.'));
 });
 document.addEventListener('keydown', event => {
-  if (event.key === 'Escape' && !$('#score-screen').hidden) closeScore();
+  if (event.key === 'Escape' && $('#point-wheel').classList.contains('open')) closePointWheel();
+  else if (event.key === 'Escape' && !$('#score-screen').hidden) closeScore();
   if ($('#score-screen').hidden || $('#form-dialog').open) return;
   if (event.key === 'ArrowLeft') score(1, 1);
   if (event.key === 'ArrowRight') score(2, 1);

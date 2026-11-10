@@ -61,6 +61,27 @@
     <header class="score-top"><button class="score-back" id="close-score">← Voltar</button><span class="score-badge"><span class="live-dot"></span> PLACAR AO VIVO</span><button class="score-fullscreen" id="fullscreen-score" title="Tela cheia">⛶ <span>Tela cheia</span></button></header>
     <div class="score-center"><div class="score-title" id="score-tournament">TORNEIO</div><div class="score-round" id="score-round">PARTIDA</div><div class="score-line"><div class="score-team score-team-left"><span class="score-team-name" id="score-name1">TIME A</span><strong id="score-value1">0</strong></div><span class="score-colon">:</span><div class="score-team score-team-right"><span class="score-team-name" id="score-name2">TIME B</span><strong id="score-value2">0</strong></div></div><p>TOQUE NO LADO DO TIME PARA MARCAR UM PONTO</p></div>
     <div class="score-bottom"><button id="undo-left" class="undo-button">↶ Desfazer ponto <span id="undo-name1">Time A</span></button><span class="score-hint">PONTUS-SE <span>●</span> O JOGO ACONTECE AQUI</span><button id="undo-right" class="undo-button">Desfazer ponto <span id="undo-name2">Time B</span> ↷</button></div>
+    <div class="point-wheel-backdrop" id="point-wheel" aria-hidden="true">
+      <div class="point-wheel-panel" id="point-wheel-panel" role="dialog" aria-modal="true" aria-labelledby="point-wheel-title">
+        <div class="point-wheel-art" aria-hidden="true">
+          <svg viewBox="0 0 240 240" role="presentation">
+            <path class="graffiti-splash" d="M119 5 136 28 162 13 169 42 201 39 194 70 226 84 205 108 235 132 207 151 219 181 186 185 178 219 149 204 128 235 108 207 78 225 70 193 38 199 43 167 12 153 31 128 5 106 31 84 15 55 48 49 55 18 84 35Z"/>
+            <circle class="graffiti-ball" cx="120" cy="120" r="59"/>
+            <path class="graffiti-line" d="M62 100c37 8 76 32 116 80M83 65c15 37 16 79-2 111M178 72c-30 22-51 57-58 108"/>
+            <path class="graffiti-scratch" d="m20 43 25 9-17 8 25 7M190 25l-9 25 25-8M205 190l-28 4 18 15M28 188l25-12-5 28"/>
+          </svg>
+        </div>
+        <span class="point-wheel-kicker">PONTUAÇÃO</span>
+        <h2 id="point-wheel-title">TIME</h2>
+        <div class="point-wheel">
+          <button class="wheel-option wheel-option-one" data-wheel-value="1" data-delta="1">1</button>
+          <button class="wheel-option wheel-option-two" data-wheel-value="2" data-delta="2">2</button>
+          <button class="wheel-option wheel-option-three" data-wheel-value="3" data-delta="3">3</button>
+          <button class="wheel-toggle" id="wheel-toggle-negative" aria-label="Mostrar pontos negativos">−</button>
+        </div>
+        <button class="point-wheel-close" id="wheel-close" aria-label="Fechar">×</button>
+      </div>
+    </div>
   </section>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </body>

@@ -615,3 +615,30 @@ footer span{font:400 15px var(--marker);letter-spacing:.04em;color:var(--muted)}
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
 }
+
+
+/* ---------- roda de pontuação contextual do basquete ---------- */
+.point-wheel-backdrop{position:fixed;inset:0;z-index:100;display:block;padding:0;background:transparent;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .12s,visibility .12s}
+.point-wheel-backdrop.open{opacity:1;visibility:visible;pointer-events:none}
+.point-wheel-panel{--team-rgb:255,154,28;position:fixed;left:50%;top:50%;width:260px;height:260px;padding:0;color:var(--cream);background:transparent;border:0;box-shadow:none;transform:translate(-50%,-50%) scale(.82);opacity:0;pointer-events:none;transition:transform .16s ease,opacity .16s ease}
+.point-wheel-backdrop.open .point-wheel-panel{transform:translate(-50%,-50%) scale(1);opacity:1;pointer-events:auto}
+.point-wheel-panel.team-orange{--team-rgb:255,133,24}
+.point-wheel-panel.team-purple{--team-rgb:169,61,240}
+.point-wheel-kicker{position:absolute;top:12px;left:0;right:0;z-index:3;text-align:center;font:900 9px var(--body);letter-spacing:.2em;color:rgba(255,255,255,.9);text-shadow:0 2px 5px #000}
+.point-wheel-panel h2{position:absolute;top:27px;left:18px;right:18px;z-index:3;margin:0;text-align:center;font:900 13px var(--display);letter-spacing:.08em;text-transform:uppercase;color:#fff;text-shadow:0 2px 5px #000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.point-wheel-art{position:absolute;inset:-12px;z-index:0;pointer-events:none;filter:drop-shadow(0 5px 5px #0008);opacity:.88}
+.point-wheel-art svg{width:100%;height:100%;overflow:visible}
+.graffiti-splash{fill:rgba(var(--team-rgb),.25);stroke:rgba(var(--team-rgb),.9);stroke-width:4;stroke-linejoin:round;stroke-dasharray:9 4}
+.graffiti-ball{fill:rgba(var(--team-rgb),.2);stroke:#fff2df;stroke-width:5;stroke-dasharray:13 5}
+.graffiti-line,.graffiti-scratch{fill:none;stroke:#fff2df;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+.graffiti-scratch{stroke:rgba(var(--team-rgb),1);stroke-width:8}
+.point-wheel{position:absolute;inset:0;z-index:1;border-radius:50%;border:2px solid rgba(255,255,255,.7);background:radial-gradient(circle at 50% 42%,rgba(var(--team-rgb),.19),rgba(var(--team-rgb),.32) 58%,rgba(var(--team-rgb),.48));box-shadow:0 0 0 1px rgba(255,255,255,.12),0 12px 28px #0008;backdrop-filter:blur(5px)}
+.point-wheel::before{content:'';position:absolute;inset:9px;border:1px dashed rgba(255,255,255,.42);border-radius:50%;pointer-events:none}
+.wheel-option{position:absolute;z-index:2;width:29%;height:29%;display:grid;place-items:center;border:2px solid rgba(255,255,255,.92);border-radius:50%;background:rgba(var(--team-rgb),.48);color:#fff;font:900 43px var(--display);text-shadow:0 2px 5px #0009;box-shadow:0 4px 12px #0007,inset 0 0 0 2px rgba(255,255,255,.12);cursor:pointer;backdrop-filter:blur(4px);transition:transform .12s,background .12s}
+.wheel-option:hover,.wheel-option:focus-visible{transform:scale(1.1);background:rgba(var(--team-rgb),.88);outline:none}
+.wheel-option-one{top:13%;left:35.5%}.wheel-option-two{right:9%;bottom:15%}.wheel-option-three{left:9%;bottom:15%}
+.wheel-toggle{position:absolute;z-index:4;left:50%;top:53%;width:31%;height:31%;transform:translate(-50%,-50%);border:3px solid #fff;border-radius:50%;background:rgba(12,7,18,.72);color:#fff;font:900 55px/.8 var(--display);text-shadow:0 2px 5px #000;box-shadow:0 0 0 4px rgba(var(--team-rgb),.55),0 5px 14px #0008;cursor:pointer;backdrop-filter:blur(6px)}
+.wheel-toggle.negative{background:rgba(225,48,58,.78)}
+.point-wheel-close{position:absolute;z-index:5;top:-5px;right:-5px;width:29px;height:29px;border:1px solid #fff9;border-radius:50%;background:rgba(10,5,15,.82);color:#fff;font-size:21px;line-height:1;cursor:pointer}
+.point-wheel-panel>p{display:none}
+@media(max-width:600px){.point-wheel-panel{width:238px;height:238px}.wheel-option{font-size:39px}.wheel-toggle{font-size:49px}}
